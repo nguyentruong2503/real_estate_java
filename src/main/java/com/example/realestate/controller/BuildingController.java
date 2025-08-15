@@ -89,7 +89,7 @@ public class BuildingController {
 
         mav.addObject("buildingTypes", buildingType.type());
 
-        return mav;
+        return mav ;
     }
 
 }
