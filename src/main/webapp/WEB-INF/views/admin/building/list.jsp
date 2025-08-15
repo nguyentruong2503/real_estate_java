@@ -1,0 +1,893 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ include file="/WEB-INF/views/taglib.jsp" %>
+<c:url var="buildingListURL" value="/admin/building-list"/>
+<c:url var="buildingAPI" value="/api/building"/>
+<%
+    request.setAttribute("contentPage", "content/user-list-content.jsp");
+    RequestDispatcher rd = request.getRequestDispatcher("layout.jsp");
+    rd.forward(request, response);
+%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Building Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#3B82F6",
+                        secondary: "#1E40AF",
+                        accent: "#10B981",
+                        dark: "#1F2937",
+                        light: "#F9FAFB",
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        .content {
+            transition: all 0.3s ease;
+        }
+        .content.expanded {
+            margin-left: 70px;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                z-index: 100;
+                left: -250px;
+            }
+            .sidebar.active {
+                left: 0;
+            }
+            .content.expanded {
+                margin-left: 0;
+            }
+        }
+
+        /* Search dropdown animation */
+        .search-dropdown {
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+            pointer-events: none;
+        }
+        .search-dropdown.show {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .pagebanner {
+            display: none; /* Ẩn text "8 items found..." */
+        }
+        .pagelinks {
+            display: none; /* Ẩn nút phân trang mặc định */
+        }
+
+        /* Custom animation for modal */
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-animation {
+            animation: modalFadeIn 0.3s ease-out forwards;
+        }
+
+        /* Custom scrollbar for employee list */
+        .employee-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .employee-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .employee-list::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 10px;
+        }
+
+        .employee-list::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+<header class="bg-white shadow-sm">
+    <div class="px-4 py-3 flex items-center justify-between">
+        <div class="flex items-center">
+            <button id="mobileMenuButton" class="md:hidden text-gray-500 mr-2">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+            <h1 class="text-xl font-semibold text-gray-800">
+                Building Management
+            </h1>
+        </div>
+        <div class="flex items-center space-x-4">
+            <!-- Search Button for Mobile -->
+            <button
+                    id="mobileSearchButton"
+                    class="md:hidden text-gray-500 hover:text-primary"
+            >
+                <i class="fas fa-search text-xl"></i>
+            </button>
+
+            <!-- Search Bar for Desktop -->
+            <div class="relative hidden md:block">
+                <div class="relative">
+                    <input
+                            type="text"
+                            id="searchInput"
+                            placeholder="Search buildings..."
+                            class="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
+                    />
+                    <div class="absolute left-3 top-2.5 text-gray-400">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div
+                            id="searchDropdown"
+                            class="search-dropdown absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 max-h-96 overflow-y-auto"
+                    >
+                        <!-- Search results will appear here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="relative">
+                <button class="text-gray-500 hover:text-primary">
+                    <i class="fas fa-bell text-xl"></i>
+                    <span
+                            class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"
+                    ></span>
+                </button>
+            </div>
+            <div class="relative">
+                <button class="text-gray-500 hover:text-primary">
+                    <i class="fas fa-envelope text-xl"></i>
+                    <span
+                            class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"
+                    ></span>
+                </button>
+            </div>
+            <div class="border-l border-gray-200 h-8"></div>
+            <div class="flex items-center">
+                <div
+                        class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white"
+                >
+                    <i class="fas fa-user"></i>
+                </div>
+                <span class="ml-2 hidden md:inline">Admin</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Search Bar (hidden by default) -->
+    <div
+            id="mobileSearchBar"
+            class="px-4 py-3 hidden md:hidden bg-gray-50 border-t border-gray-200"
+    >
+        <div class="relative">
+            <input
+                    type="text"
+                    id="mobileSearchInput"
+                    placeholder="Search buildings..."
+                    class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            />
+            <div class="absolute left-3 top-2.5 text-gray-400">
+                <i class="fas fa-search"></i>
+            </div>
+            <div
+                    id="mobileSearchDropdown"
+                    class="search-dropdown absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 max-h-96 overflow-y-auto"
+            >
+                <!-- Mobile search results will appear here -->
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50">
+    <!-- Page Header -->
+    <div
+            class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4"
+    >
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800">Building Management</h2>
+            <p class="text-sm text-gray-500 mt-1">
+                Manage all your properties and buildings
+            </p>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+            <!-- Advanced Search Button -->
+            <button
+                    id="advancedSearchToggle"
+                    class="flex items-center justify-center md:justify-start text-primary border border-primary bg-white hover:bg-blue-50 px-4 py-2 rounded-lg"
+            >
+                <i class="fas fa-sliders-h mr-2"></i>
+                <span>Advanced Search</span>
+            </button>
+
+            <!-- Add New Building Button -->
+            <a href="/admin/building-edit">
+                <button
+                    class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center"
+                >
+                    <i class="fas fa-plus mr-2"></i>
+                    Thêm mới tòa nhà
+                </button>
+            </a>
+
+        </div>
+    </div>
+
+    <!-- Advanced Search Panel -->
+    <div
+            id="advancedSearchPanel"
+            class="bg-white rounded-lg shadow overflow-hidden mb-6 hidden transition-all duration-300"
+    >
+        <div
+                class="p-4 border-b border-gray-200 flex justify-between items-center"
+        >
+            <h3 class="font-medium text-gray-800">Tìm kiếm nâng cao</h3>
+            <button
+                    id="closeAdvancedSearch"
+                    class="text-gray-500 hover:text-gray-700"
+            >
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Form Grid -->
+
+        <form:form id="listForm" modelAttribute="model" action="${buildingListURL}" method="GET"
+                   class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" >
+            <!-- Tên tòa nhà -->
+                <div>
+                    <label
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                    >Tên tòa nhà</label
+                    >
+                    <form:input path="name"
+                            type="text"
+                            class="w-full border px-3 py-2 rounded-md"
+                            placeholder="Nhập tên tòa nhà"
+                    />
+                </div>
+
+
+                <div>
+                    <label
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                    >Thành phố</label
+                    >
+                    <form:input
+                            type="text"
+                            path="city"
+                            class="w-full border px-3 py-2 rounded-md"
+                            placeholder="Thành phố"
+                    />
+                </div>
+
+                <!-- Quận -->
+                <div>
+                    <label
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                    >Quận</label
+                    >
+                    <form:select path="district" class="w-full border px-3 py-2 rounded-md">
+                        <form:option value="">--Chọn quận--</form:option>
+                        <form:options items="${districts}"></form:options>
+                    </form:select>
+                </div>
+
+                <!-- Phường -->
+                <div>
+                    <label
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                    >Phường</label
+                    >
+                    <form:input
+                            type="text"
+                            path="ward"
+                            class="w-full border px-3 py-2 rounded-md"
+                            placeholder="Phường"
+                    />
+                </div>
+
+                <!-- Đường -->
+                <div>
+                    <label
+                            for="street"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                    >Đường</label
+                    >
+                    <form:input
+                            type="text"
+                            path="street"
+                            class="w-full border px-3 py-2 rounded-md"
+                            placeholder="Tên đường"
+                    />
+                </div>
+
+                <!-- Số tầng hầm -->
+                <div>
+                    <label
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                    >Số tầng hầm</label
+                    >
+                    <form:input
+                            type="number"
+                            path="numberOfBasement"
+                            class="w-full border px-3 py-2 rounded-md"
+                    />
+                </div>
+
+                <!-- Diện tích sàn -->
+                <div>
+                    <label
+                            for="floorArea"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                    >Diện tích sàn</label
+                    >
+                    <form:input
+                            type="text"
+                            path="floorArea"
+                            class="w-full border px-3 py-2 rounded-md"
+                    />
+                </div>
+
+                <!-- Diện tích từ -->
+                <div>
+                    <label
+                            for="areaFrom"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                    >Diện tích từ</label
+                    >
+                    <form:input
+                            type="text"
+                            path="areaFrom"
+                            class="w-full border px-3 py-2 rounded-md"
+                    />
+                </div>
+
+                <!-- Diện tích đến -->
+                <div>
+                    <label
+                            for="areaTo"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                    >Diện tích đến</label
+                    >
+                    <form:input
+                            type="text"
+                            path="areaTo"
+                            class="w-full border px-3 py-2 rounded-md"
+                    />
+                </div>
+
+                <!-- Hướng -->
+                <div>
+                    <label
+                            for="direction"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                    >Hướng</label
+                    >
+                    <form:input
+                            type="text"
+                            path="direction"
+                            class="w-full border px-3 py-2 rounded-md"
+                    />
+                </div>
+
+                <!-- Hạng -->
+                <div>
+                    <label
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                    >Hạng</label
+                    >
+                    <form:input
+                            type="text"
+                            path="level"
+                            class="w-full border px-3 py-2 rounded-md"
+                    />
+                </div>
+
+                <!-- Giá thuê từ -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1"
+                    >Giá thuê từ</label
+                    >
+                    <form:input
+                            type="number"
+                            path="rentPriceFrom"
+                            class="w-full border px-3 py-2 rounded-md"
+                    />
+                </div>
+
+                <!-- Giá thuê đến -->
+                <div>
+                    <label
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                    >Giá thuê đến</label
+                    >
+                    <form:input
+                            type="number"
+                            path="rentPriceTo"
+                            class="w-full border px-3 py-2 rounded-md"
+                    />
+                </div>
+
+                <!-- Tên quản lý -->
+                <div>
+                    <label
+                            for="managerName"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                    >Tên quản lý</label
+                    >
+                    <form:input
+                            type="text"
+                            path="managerName"
+                            class="w-full border px-3 py-2 rounded-md"
+                    />
+                </div>
+
+                <!-- Điện thoại quản lý -->
+                <div>
+                    <label
+                            for="managerPhone"
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                    >Điện thoại quản lý</label
+                    >
+                    <form:input
+                            type="number"
+                            path="managerPhone"
+                            class="w-full border px-3 py-2 rounded-md"
+                    />
+                </div>
+
+                <!-- Chọn nhân viên phụ trách -->
+                <div class="col-span-full">
+                    <label
+                            class="block text-sm font-medium text-gray-700 mb-1"
+                    >Chọn nhân viên phụ trách</label
+                    >
+                    <form:select path="staffId" class="w-full border px-3 py-2 rounded-md">
+                        <form:option value="">--Chọn nhân viên--</form:option>
+                        <form:options items="${listStaffs}"></form:options>
+                    </form:select>
+                </div>
+
+                <!-- Checkbox options -->
+                <div class="col-span-full flex flex-wrap gap-4 mt-2">
+                    <form:checkboxes path="typeCode" items="${buildingTypes}"></form:checkboxes>
+                </div>
+
+
+            <div
+                    class="p-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3"
+            >
+                <button
+                        id="resetSearch"
+                        class="px-4 py-2 text-gray-700 hover:text-gray-900 rounded-lg border"
+                >
+                    Reset
+                </button>
+                <button
+                        id="btnSearchBuilding"
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
+                >
+                    Tìm kiếm
+                </button>
+            </div>
+            </form:form>
+
+    </div>
+
+    <!-- Building List Table -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="overflow-x-auto">
+            <table id="tableList" class="min-w-full divide-y divide-gray-200">
+                <display:table
+                        name="model.listResult"
+                        requestURI="${buildingListURL}"
+                        partialList="true"
+                        sort="external"
+                        size="${model.totalItems}"
+                        defaultsort="1"
+                        defaultorder="ascending"
+                        id="tableList"
+                        pagesize="${model.maxPageItems}"
+                        export="false"
+                        class="min-w-full divide-y divide-gray-200"
+                >
+                    <display:column property="id" style="display:none;" headerClass="hidden" class="hidden"/>
+
+                    <display:column title="Tên tòa nhà" property="name"
+                                    headerClass="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    class="px-6 py-4 text-sm text-gray-900"/>
+
+                    <display:column title="Địa chỉ" property="address"
+                                    headerClass="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    class="px-6 py-4 text-sm text-gray-500"/>
+
+                    <display:column title="Trạng thái" property="status"
+                                    headerClass="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    class="px-6 py-4 text-sm text-gray-500" />
+
+                    <display:column title="Năm xây" property="yearBuilt"
+                                    headerClass="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    class="px-6 py-4 text-sm text-gray-500"/>
+
+                    <display:column title="Giá thuê" property="rentPrice"
+                                    headerClass="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    class="px-6 py-4 text-sm text-gray-500"/>
+
+                    <display:column title="Diện tích thuê" property="rentArea"
+                                    headerClass="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    class="px-6 py-4 text-sm text-gray-500"/>
+
+                    <display:column title="Tên quản lý" property="managerName"
+                                    headerClass="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    class="px-6 py-4 text-sm text-gray-500"/>
+
+                    <display:column title="SĐT quản lý" property="managerPhone"
+                                    headerClass="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    class="px-6 py-4 text-sm text-gray-500"/>
+
+                    <display:column title="Thao tác" headerClass="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
+                        <div class="flex space-x-2 justify-center">
+                            <a class="text-blue-600 hover:text-blue-900" href="/admin/building-edit-${tableList.id}" title="Sửa">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button class="text-red-600 hover:text-red-900" onclick="deleteBuilding(${tableList.id})" title="Xóa">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                            <button class="text-purple-600 hover:text-purple-900" onclick="assignmentBuilding(${tableList.id})" title="Giao tòa nhà">
+                                <i class="fas fa-user-tag"></i>
+                            </button>
+                            <a class="text-gray-600 hover:text-gray-900" href="/admin/building-view-${tableList.id}" title="Xem chi tiết">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </div>
+                    </display:column>
+                </display:table>
+            </table>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="flex items-center justify-between mt-6 bg-white px-4 py-3 rounded-lg shadow">
+        <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-gray-700">
+                    Showing
+                    <span class="font-medium">${(model.page - 1) * model.maxPageItems + 1}</span>
+                    to
+                    <span class="font-medium">
+                    <c:choose>
+                        <c:when test="${model.page * model.maxPageItems > model.totalItems}">
+                            ${model.totalItems}
+                        </c:when>
+                        <c:otherwise>
+                            ${model.page * model.maxPageItems}
+                        </c:otherwise>
+                    </c:choose>
+                </span>
+                    of
+                    <span class="font-medium">${model.totalItems}</span> buildings
+                </p>
+            </div>
+
+            <div>
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    <!-- Previous -->
+                    <c:if test="${model.page > 1}">
+                        <c:url var="prevUrl" value="${buildingListURL}">
+                            <c:param name="d-3677046-p" value="${model.page - 1}" />
+                        </c:url>
+                        <a href="${prevUrl}"
+                           class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </c:if>
+
+                    <!-- Page numbers -->
+                    <c:forEach var="i" begin="1" end="${model.totalPage}">
+                        <c:url var="pageUrl" value="${buildingListURL}">
+                            <c:param name="d-3677046-p" value="${i}" />
+                        </c:url>
+                        <a href="${pageUrl}"
+                           class="${i == model.page ? 'z-10 bg-primary border-primary text-white' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'} relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                                ${i}
+                        </a>
+                    </c:forEach>
+
+                    <!-- Next -->
+                    <c:if test="${model.page < model.totalPage}">
+                        <c:url var="nextUrl" value="${buildingListURL}">
+                            <c:param name="d-3677046-p" value="${model.page + 1}" />
+                        </c:url>
+                        <a href="${nextUrl}"
+                           class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </c:if>
+
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <div id="assignmentModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+        <div
+                class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
+        >
+            <!-- Background overlay -->
+            <div class="fixed inset-0 transition-opacity" aria-hidden="true">
+                <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+
+            <!-- Modal container -->
+            <div
+                    class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full modal-animation"
+            >
+                <!-- Modal header -->
+                <div
+                        class="bg-blue-600 px-4 py-3 sm:px-6 sm:flex sm:items-center sm:justify-between"
+                >
+                    <h3 class="text-lg leading-6 font-medium text-white">
+                        Assign Building to Employees
+                    </h3>
+                    <button
+                            onclick="closeModal()"
+                            class="text-white hover:text-gray-200 focus:outline-none"
+                    >
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <!-- Modal content -->
+                <div class="px-4 pt-5 pb-4 sm:p-6">
+                    <!-- Employee list header -->
+                    <div
+                            class="grid grid-cols-12 gap-3 bg-gray-100 p-2 rounded-t-lg border-b border-gray-200"
+                    >
+                        <div
+                                class="col-span-2 text-center text-xs font-medium text-gray-500"
+                        >
+                            Select
+                        </div>
+                        <div class="col-span-10 text-xs font-medium text-gray-500">
+                            Full Name
+                        </div>
+                    </div>
+
+                    <!-- Employee list with checkboxes -->
+                    <div
+                            class="employee-list max-h-96 overflow-y-auto border border-gray-200 rounded-b-lg"
+                    >
+<%--                    Render data nhân viên vào đây--%>
+                    </div>
+
+                    <!-- Select all option -->
+                    <div class="mt-3 flex items-center">
+                        <input
+                                id="selectAll"
+                                type="checkbox"
+                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        />
+                        <label for="selectAll" class="ml-2 text-sm text-gray-700"
+                        >Select all employees</label
+                        >
+                    </div>
+                    <input type="hidden" id="buildingId" name="Building" value="" />
+                </div>
+
+                <!-- Modal footer -->
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button
+                            type="button"
+                            id="btnAssignmentBuilding"
+                            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
+                    >
+                        Assign Building
+                    </button>
+                    <button
+                            type="button"
+                            onclick="closeModal()"
+                            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</main>
+
+<script>
+    const advancedSearchToggle = document.getElementById(
+        "advancedSearchToggle"
+    );
+    const advancedSearchPanel = document.getElementById(
+        "advancedSearchPanel"
+    );
+    const closeAdvancedSearch = document.getElementById(
+        "closeAdvancedSearch"
+    );
+
+    // Mở hoặc ẩn panel tìm kiếm nâng cao
+    advancedSearchToggle.addEventListener("click", () => {
+        advancedSearchPanel.classList.toggle("hidden");
+    });
+
+    // Đóng panel khi nhấn nút đóng
+    closeAdvancedSearch.addEventListener("click", () => {
+        advancedSearchPanel.classList.add("hidden");
+    });
+
+
+    $('#btnSearchBuilding').click(function (e){
+        e.preventDefault();
+        $('#listForm').submit();
+    });
+
+    function deleteBuilding(id) {
+        var buildingId = [id];
+        deleteBuildings(buildingId);
+    }
+
+    function deleteBuildings(data){
+        $.ajax({
+            type: "DELETE",
+            url: "${buildingAPI}/" +data,
+            data: JSON.stringify(data),
+            success: function (response) {
+                console.log("ok rồi nhé anh ba");
+                data.forEach(function(id) {
+                    $("#tableList tbody tr").filter(function() {
+                        return $(this).find("td.hidden").text().trim() == id;
+                    }).remove();
+                });
+
+            },
+            error: function (response) {
+                console.log("lỗi rồi anh ba");
+                console.log(response);
+            }
+        });
+    }
+
+    function closeModal() {
+        document.getElementById("assignmentModal").classList.add("hidden");
+        document.body.classList.remove("overflow-hidden");
+    }
+
+    document
+        .getElementById("selectAll")
+        .addEventListener("change", function (e) {
+            const checkboxes = document.querySelectorAll(
+                '.employee-list input[type="checkbox"]'
+            );
+            checkboxes.forEach((checkbox) => {
+                checkbox.checked = e.target.checked;
+            });
+        });
+
+    function assignmentBuilding(buildingId) {
+        document.getElementById("assignmentModal").classList.remove("hidden");
+        document.body.classList.add("overflow-hidden"); // khóa cuộn trang khi mở modal
+        $("#buildingId").val(buildingId);
+        loadStaff(buildingId);
+    }
+
+    function loadStaff(buildingId) {
+        console.log("Hàm loadStaff bắt đầu chạy");
+        $.ajax({
+            type: "GET",
+            url: "${buildingAPI}/" +buildingId + '/staffs',
+            dataType: "JSON",
+            success: function (response) {
+                if (!response.data || response.data.length === 0) {
+                    $(".employee-list").html(`
+                    <div class="p-3 text-sm text-gray-500 text-center">
+                        Không có nhân viên nào
+                    </div>
+                `);
+                    console.warn("Không có dữ liệu nhân viên");
+                    return;
+                }
+
+                // Tạo HTML danh sách nhân viên
+                var html = '';
+                $.each(response.data, function(index, item) {
+                    html += `
+                        <div class="grid grid-cols-12 gap-4 p-3 hover:bg-gray-50 border-b border-gray-100">
+                            <div class="col-span-2 flex items-center justify-center">
+                                <input type="checkbox"
+                                    value="\${item.staffId}"
+                                    class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                    \${item.checked == "checked" ? "checked" : ""} />
+                            </div>
+                            <div class="col-span-10 text-sm text-gray-700 flex items-center">
+                                \${item.fullName}
+                            </div>
+                        </div>
+                    `;
+                });
+                $(".employee-list").html(html);
+
+            },
+            error: function (xhr) {
+                $(".employee-list").html(`
+                <div class="p-3 text-sm text-red-500 text-center">
+                    Lỗi khi tải danh sách nhân viên
+                </div>
+            `);
+                console.error("Lỗi khi load staff", xhr);
+            }
+        });
+    }
+
+    $("#btnAssignmentBuilding").click(function (e) {
+        e.preventDefault();
+        var data = {};
+        data["buildingId"] = $("#buildingId").val();
+        var staffs = $(".employee-list input[type=checkbox]:checked")
+            .map(function () {
+                return $(this).val();
+            })
+            .get();
+        data["staffs"] = staffs;
+        if(data["staffs"] != ""){
+            assignTask(data);
+        }
+        console.log("kkk");
+    });
+
+    function assignTask(data){
+        $.ajax({
+            type: "POST",
+            url: "${buildingAPI}/" +"assignment",
+            data: JSON.stringify(data),
+            contentType: "application/json", // đinh dạng dữ liệu từ phía client gửi về
+            dataType: "JSON", // định dạng dữ liệu từ server gửi lên
+            success: function (resonse) {
+                console.log("ok rồi nhé anh ba");
+                window.location.href = "/admin/building-list";
+            },
+            error: function (response) {
+                console.info("giao tòa nhà lỗi rồi anh ba");
+                window.location.href = "<c:url value="/admin/building-list?message=error"/>";
+                console.log(response);
+            }
+        });
+    }
+</script>
+</body>
+</html>
+
