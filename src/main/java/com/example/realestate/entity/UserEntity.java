@@ -39,6 +39,12 @@ public class UserEntity extends BaseEntity {
     @ManyToMany(mappedBy = "userEntities",fetch = FetchType.LAZY)
     List<BuildingEntity> buildingEntities = new ArrayList<>();
 
+    @ManyToMany(mappedBy = "userEntities", fetch = FetchType.LAZY)
+    private List<CustomerEntity> customerEntities = new ArrayList<>();
+
+    @OneToMany(mappedBy = "staffId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TransactionEntity> transactions = new ArrayList<>();
+
     @Override
     public Long getId() {
         return id;
@@ -111,5 +117,21 @@ public class UserEntity extends BaseEntity {
 
     public void setBuildingEntities(List<BuildingEntity> buildingEntities) {
         this.buildingEntities = buildingEntities;
+    }
+
+    public List<CustomerEntity> getCustomerEntities() {
+        return customerEntities;
+    }
+
+    public void setCustomerEntities(List<CustomerEntity> customerEntities) {
+        this.customerEntities = customerEntities;
+    }
+
+    public List<TransactionEntity> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(List<TransactionEntity> transactions) {
+        this.transactions = transactions;
     }
 }

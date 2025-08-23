@@ -1,7 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ include file="/WEB-INF/views/taglib.jsp" %>
-<c:url var="buildingListURL" value="/admin/building-list"/>
-<c:url var="buildingAPI" value="/api/building"/>
+<c:url var="customerListURL" value="/admin/customer-list"/>
+<c:url var="customerAPI" value="/api/customer"/>
 <%
     request.setAttribute("contentPage", "content/user-list-content.jsp");
     RequestDispatcher rd = request.getRequestDispatcher("layout.jsp");
@@ -12,7 +12,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Building Management</title>
+    <title>Customer Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -122,7 +122,7 @@
                 <i class="fas fa-bars text-xl"></i>
             </button>
             <h1 class="text-xl font-semibold text-gray-800">
-                Building Management
+                Customer Management
             </h1>
         </div>
         <div class="flex items-center space-x-4">
@@ -140,7 +140,7 @@
                     <input
                             type="text"
                             id="searchInput"
-                            placeholder="Search buildings..."
+                            placeholder="Search customer..."
                             class="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
                     />
                     <div class="absolute left-3 top-2.5 text-gray-400">
@@ -192,7 +192,7 @@
             <input
                     type="text"
                     id="mobileSearchInput"
-                    placeholder="Search buildings..."
+                    placeholder="Search customer..."
                     class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             />
             <div class="absolute left-3 top-2.5 text-gray-400">
@@ -214,9 +214,9 @@
             class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4"
     >
         <div>
-            <h2 class="text-2xl font-bold text-gray-800">Building Management</h2>
+            <h2 class="text-2xl font-bold text-gray-800">Customer Management</h2>
             <p class="text-sm text-gray-500 mt-1">
-                Manage all your properties and buildings
+                Manage all your customer
             </p>
         </div>
 
@@ -230,13 +230,12 @@
                 <span>Advanced Search</span>
             </button>
 
-            <!-- Add New Building Button -->
-            <a href="/admin/building-edit">
+            <a href="/admin/customer-edit">
                 <button
-                    class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center"
+                        class="bg-primary hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center"
                 >
                     <i class="fas fa-plus mr-2"></i>
-                    Thêm mới tòa nhà
+                    Thêm mới khách hàng
                 </button>
             </a>
 
@@ -262,228 +261,57 @@
 
         <!-- Form Grid -->
 
-        <form:form id="listForm" modelAttribute="model" action="${buildingListURL}" method="GET"
+        <form:form id="listForm" modelAttribute="customerDTO" action="${customerListURL}" method="GET"
                    class="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" >
             <!-- Tên tòa nhà -->
-                <div>
-                    <label
-                            class="block text-sm font-medium text-gray-700 mb-1"
-                    >Tên tòa nhà</label
-                    >
-                    <form:input path="name"
+            <div>
+                <label
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                >Tên khách hàng</label
+                >
+                <form:input path="fullName"
                             type="text"
                             class="w-full border px-3 py-2 rounded-md"
-                            placeholder="Nhập tên tòa nhà"
-                    />
-                </div>
+                            placeholder="Nhập tên khách hàng"
+                />
+            </div>
 
+            <div>
+                <label
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                >Số điện thoại</label
+                >
+                <form:input
+                        type="number"
+                        path="phone"
+                        class="w-full border px-3 py-2 rounded-md"
+                        placeholder="Số điện thoại"
+                />
+            </div>
 
-                <div>
-                    <label
-                            class="block text-sm font-medium text-gray-700 mb-1"
-                    >Thành phố</label
-                    >
-                    <form:input
-                            type="text"
-                            path="city"
-                            class="w-full border px-3 py-2 rounded-md"
-                            placeholder="Thành phố"
-                    />
-                </div>
+            <div>
+                <label
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                >Email</label
+                >
+                <form:input
+                        type="text"
+                        path="email"
+                        class="w-full border px-3 py-2 rounded-md"
+                        placeholder="Email"
+                />
+            </div>
 
-                <!-- Quận -->
-                <div>
-                    <label
-                            class="block text-sm font-medium text-gray-700 mb-1"
-                    >Quận</label
-                    >
-                    <form:select path="district" class="w-full border px-3 py-2 rounded-md">
-                        <form:option value="">--Chọn quận--</form:option>
-                        <form:options items="${districts}"></form:options>
-                    </form:select>
-                </div>
-
-                <!-- Phường -->
-                <div>
-                    <label
-                            class="block text-sm font-medium text-gray-700 mb-1"
-                    >Phường</label
-                    >
-                    <form:input
-                            type="text"
-                            path="ward"
-                            class="w-full border px-3 py-2 rounded-md"
-                            placeholder="Phường"
-                    />
-                </div>
-
-                <!-- Đường -->
-                <div>
-                    <label
-                            for="street"
-                            class="block text-sm font-medium text-gray-700 mb-1"
-                    >Đường</label
-                    >
-                    <form:input
-                            type="text"
-                            path="street"
-                            class="w-full border px-3 py-2 rounded-md"
-                            placeholder="Tên đường"
-                    />
-                </div>
-
-                <!-- Số tầng hầm -->
-                <div>
-                    <label
-                            class="block text-sm font-medium text-gray-700 mb-1"
-                    >Số tầng hầm</label
-                    >
-                    <form:input
-                            type="number"
-                            path="numberOfBasement"
-                            class="w-full border px-3 py-2 rounded-md"
-                    />
-                </div>
-
-                <!-- Diện tích sàn -->
-                <div>
-                    <label
-                            for="floorArea"
-                            class="block text-sm font-medium text-gray-700 mb-1"
-                    >Diện tích sàn</label
-                    >
-                    <form:input
-                            type="text"
-                            path="floorArea"
-                            class="w-full border px-3 py-2 rounded-md"
-                    />
-                </div>
-
-                <!-- Diện tích từ -->
-                <div>
-                    <label
-                            for="areaFrom"
-                            class="block text-sm font-medium text-gray-700 mb-1"
-                    >Diện tích từ</label
-                    >
-                    <form:input
-                            type="text"
-                            path="areaFrom"
-                            class="w-full border px-3 py-2 rounded-md"
-                    />
-                </div>
-
-                <!-- Diện tích đến -->
-                <div>
-                    <label
-                            for="areaTo"
-                            class="block text-sm font-medium text-gray-700 mb-1"
-                    >Diện tích đến</label
-                    >
-                    <form:input
-                            type="text"
-                            path="areaTo"
-                            class="w-full border px-3 py-2 rounded-md"
-                    />
-                </div>
-
-                <!-- Hướng -->
-                <div>
-                    <label
-                            for="direction"
-                            class="block text-sm font-medium text-gray-700 mb-1"
-                    >Hướng</label
-                    >
-                    <form:input
-                            type="text"
-                            path="direction"
-                            class="w-full border px-3 py-2 rounded-md"
-                    />
-                </div>
-
-                <!-- Hạng -->
-                <div>
-                    <label
-                            class="block text-sm font-medium text-gray-700 mb-1"
-                    >Hạng</label
-                    >
-                    <form:input
-                            type="text"
-                            path="level"
-                            class="w-full border px-3 py-2 rounded-md"
-                    />
-                </div>
-
-                <!-- Giá thuê từ -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1"
-                    >Giá thuê từ</label
-                    >
-                    <form:input
-                            type="number"
-                            path="rentPriceFrom"
-                            class="w-full border px-3 py-2 rounded-md"
-                    />
-                </div>
-
-                <!-- Giá thuê đến -->
-                <div>
-                    <label
-                            class="block text-sm font-medium text-gray-700 mb-1"
-                    >Giá thuê đến</label
-                    >
-                    <form:input
-                            type="number"
-                            path="rentPriceTo"
-                            class="w-full border px-3 py-2 rounded-md"
-                    />
-                </div>
-
-                <!-- Tên quản lý -->
-                <div>
-                    <label
-                            for="managerName"
-                            class="block text-sm font-medium text-gray-700 mb-1"
-                    >Tên quản lý</label
-                    >
-                    <form:input
-                            type="text"
-                            path="managerName"
-                            class="w-full border px-3 py-2 rounded-md"
-                    />
-                </div>
-
-                <!-- Điện thoại quản lý -->
-                <div>
-                    <label
-                            for="managerPhone"
-                            class="block text-sm font-medium text-gray-700 mb-1"
-                    >Điện thoại quản lý</label
-                    >
-                    <form:input
-                            type="number"
-                            path="managerPhone"
-                            class="w-full border px-3 py-2 rounded-md"
-                    />
-                </div>
-
-                <!-- Chọn nhân viên phụ trách -->
-                <div class="col-span-full">
-                    <label
-                            class="block text-sm font-medium text-gray-700 mb-1"
-                    >Chọn nhân viên phụ trách</label
-                    >
-                    <form:select path="staffId" class="w-full border px-3 py-2 rounded-md">
-                        <form:option value="">--Chọn nhân viên--</form:option>
-                        <form:options items="${listStaffs}"></form:options>
-                    </form:select>
-                </div>
-
-                <!-- Checkbox options -->
-                <div class="col-span-full flex flex-wrap gap-4 mt-2">
-                    <form:checkboxes path="typeCode" items="${buildingTypes}"></form:checkboxes>
-                </div>
-
+            <div class="col-span-full">
+                <label
+                        class="block text-sm font-medium text-gray-700 mb-1"
+                >Chọn nhân viên phụ trách</label
+                >
+                <form:select path="staffId" class="w-full border px-3 py-2 rounded-md">
+                    <form:option value="">--Chọn nhân viên--</form:option>
+                    <form:options items="${listStaffs}"></form:options>
+                </form:select>
+            </div>
 
             <div
                     class="p-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3"
@@ -496,81 +324,89 @@
                     Reset
                 </button>
                 <button
-                        id="btnSearchBuilding"
+                        id="btnSearchCustomer"
                         class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg"
                 >
                     Tìm kiếm
                 </button>
             </div>
-            </form:form>
+        </form:form>
 
     </div>
 
-    <!-- Building List Table -->
     <div class="bg-white rounded-lg shadow overflow-hidden">
         <div class="overflow-x-auto">
             <table id="tableList" class="min-w-full divide-y divide-gray-200">
                 <display:table
-                        name="model.listResult"
-                        requestURI="${buildingListURL}"
+                        name="customerDTO.listResult"
+                        requestURI="${customerListURL}"
                         partialList="true"
                         sort="external"
-                        size="${model.totalItems}"
+                        size="${customerDTO.totalItems}"
                         defaultsort="1"
                         defaultorder="ascending"
                         id="tableList"
-                        pagesize="${model.maxPageItems}"
+                        pagesize="${customerDTO.maxPageItems}"
                         export="false"
                         class="min-w-full divide-y divide-gray-200"
                 >
                     <display:column property="id" style="display:none;" headerClass="hidden" class="hidden"/>
 
-                    <display:column title="Tên tòa nhà" property="name"
+                    <display:column title="Tên khách hàng" property="fullName"
                                     headerClass="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"
                                     class="px-6 py-4 text-sm text-gray-900"/>
 
-                    <display:column title="Địa chỉ" property="address"
+                    <display:column title="SĐT" property="phone"
                                     headerClass="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"
                                     class="px-6 py-4 text-sm text-gray-500"/>
 
-                    <display:column title="Trạng thái" property="status"
+                    <display:column title="Email" property="email"
                                     headerClass="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"
                                     class="px-6 py-4 text-sm text-gray-500" />
 
-                    <display:column title="Năm xây" property="yearBuilt"
+                    <display:column title="Nhu cầu" property="demand"
                                     headerClass="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"
                                     class="px-6 py-4 text-sm text-gray-500"/>
 
-                    <display:column title="Giá thuê" property="rentPrice"
+                    <display:column title="Người thêm" property="createdBy"
                                     headerClass="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"
                                     class="px-6 py-4 text-sm text-gray-500"/>
 
-                    <display:column title="Diện tích thuê" property="rentArea"
+                    <display:column title="Ngày thêm" property="createdDate"
                                     headerClass="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"
                                     class="px-6 py-4 text-sm text-gray-500"/>
 
-                    <display:column title="Tên quản lý" property="managerName"
+                    <display:column title="Người sửa" property="modifiedBy"
                                     headerClass="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"
                                     class="px-6 py-4 text-sm text-gray-500"/>
 
-                    <display:column title="SĐT quản lý" property="managerPhone"
+                    <display:column title="Ngày sửa" property="modifiedDate"
                                     headerClass="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"
                                     class="px-6 py-4 text-sm text-gray-500"/>
+
+                    <display:column title="Trạng thái"
+                                    headerClass="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"
+                                    class="px-6 py-4 text-sm text-gray-500">
+
+                        <c:choose>
+                            <c:when test="${tableList.status == 'CHUA_XU_LY'}">Chưa xử lý</c:when>
+                            <c:when test="${tableList.status == 'DA_XU_LY'}">Đã xử lý</c:when>
+                            <c:when test="${tableList.status == 'DANG_XU_LY'}">Đang xử lý</c:when>
+                        </c:choose>
+                    </display:column>
+
 
                     <display:column title="Thao tác" headerClass="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
                         <div class="flex space-x-2 justify-center">
-                            <a class="text-blue-600 hover:text-blue-900" href="/admin/building-edit-${tableList.id}" title="Sửa">
+                            <a class="text-blue-600 hover:text-blue-900" href="/admin/customer-edit-${tableList.id}" title="Sửa">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <button class="text-red-600 hover:text-red-900" onclick="deleteBuilding(${tableList.id})" title="Xóa">
+                            <button class="text-red-600 hover:text-red-900" onclick="deleteCustomer(${tableList.id})" title="Xóa">
                                 <i class="fas fa-trash"></i>
                             </button>
-                            <button class="text-purple-600 hover:text-purple-900" onclick="assignmentBuilding(${tableList.id})" title="Giao tòa nhà">
+                            <button class="text-purple-600 hover:text-purple-900" onclick="assignmentCustomer(${tableList.id})" title="Giao tòa nhà">
                                 <i class="fas fa-user-tag"></i>
                             </button>
-                            <a class="text-gray-600 hover:text-gray-900" href="/admin/building-view-${tableList.id}" title="Xem chi tiết">
-                                <i class="fas fa-eye"></i>
-                            </a>
                         </div>
                     </display:column>
                 </display:table>
@@ -584,29 +420,29 @@
             <div>
                 <p class="text-sm text-gray-700">
                     Showing
-                    <span class="font-medium">${(model.page - 1) * model.maxPageItems + 1}</span>
+                    <span class="font-medium">${(customerDTO.page - 1) * customerDTO.maxPageItems + 1}</span>
                     to
                     <span class="font-medium">
                     <c:choose>
-                        <c:when test="${model.page * model.maxPageItems > model.totalItems}">
-                            ${model.totalItems}
+                        <c:when test="${customerDTO.page * customerDTO.maxPageItems > customerDTO.totalItems}">
+                            ${customerDTO.totalItems}
                         </c:when>
                         <c:otherwise>
-                            ${model.page * model.maxPageItems}
+                            ${customerDTO.page * customerDTO.maxPageItems}
                         </c:otherwise>
                     </c:choose>
                 </span>
                     of
-                    <span class="font-medium">${model.totalItems}</span> buildings
+                    <span class="font-medium">${customerDTO.totalItems}</span> customers
                 </p>
             </div>
 
             <div>
                 <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
                     <!-- Previous -->
-                    <c:if test="${model.page > 1}">
-                        <c:url var="prevUrl" value="${buildingListURL}">
-                            <c:param name="d-3677046-p" value="${model.page - 1}" />
+                    <c:if test="${customerDTO.page > 1}">
+                        <c:url var="prevUrl" value="${customerListURL}">
+                            <c:param name="d-3677046-p" value="${customerDTO.page - 1}" />
                         </c:url>
                         <a href="${prevUrl}"
                            class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
@@ -615,20 +451,20 @@
                     </c:if>
 
                     <!-- Page numbers -->
-                    <c:forEach var="i" begin="1" end="${model.totalPage}">
-                        <c:url var="pageUrl" value="${buildingListURL}">
+                    <c:forEach var="i" begin="1" end="${customerDTO.totalPage}">
+                        <c:url var="pageUrl" value="${customerListURL}">
                             <c:param name="d-3677046-p" value="${i}" />
                         </c:url>
                         <a href="${pageUrl}"
-                           class="${i == model.page ? 'z-10 bg-primary border-primary text-white' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'} relative inline-flex items-center px-4 py-2 border text-sm font-medium">
+                           class="${i == customerDTO.page ? 'z-10 bg-primary border-primary text-white' : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'} relative inline-flex items-center px-4 py-2 border text-sm font-medium">
                                 ${i}
                         </a>
                     </c:forEach>
 
                     <!-- Next -->
-                    <c:if test="${model.page < model.totalPage}">
-                        <c:url var="nextUrl" value="${buildingListURL}">
-                            <c:param name="d-3677046-p" value="${model.page + 1}" />
+                    <c:if test="${customerDTO.page < customerDTO.totalPage}">
+                        <c:url var="nextUrl" value="${customerListURL}">
+                            <c:param name="d-3677046-p" value="${customerDTO.page + 1}" />
                         </c:url>
                         <a href="${nextUrl}"
                            class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
@@ -659,7 +495,7 @@
                         class="bg-blue-600 px-4 py-3 sm:px-6 sm:flex sm:items-center sm:justify-between"
                 >
                     <h3 class="text-lg leading-6 font-medium text-white">
-                        Assign Building to Employees
+                        Assign customer to Employees
                     </h3>
                     <button
                             onclick="closeModal()"
@@ -689,7 +525,7 @@
                     <div
                             class="employee-list max-h-96 overflow-y-auto border border-gray-200 rounded-b-lg"
                     >
-<%--                    Render data nhân viên vào đây--%>
+                        <%--                    Render data nhân viên vào đây--%>
                     </div>
 
                     <!-- Select all option -->
@@ -703,17 +539,17 @@
                         >Select all employees</label
                         >
                     </div>
-                    <input type="hidden" id="buildingId" name="Building" value="" />
+                    <input type="hidden" id="customerId" name="customerId" value="" />
                 </div>
 
                 <!-- Modal footer -->
                 <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
                     <button
                             type="button"
-                            id="btnAssignmentBuilding"
+                            id="btnAssignCustomer"
                             class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm"
                     >
-                        Assign Building
+                        Assign Customer
                     </button>
                     <button
                             type="button"
@@ -752,20 +588,20 @@
     });
 
 
-    $('#btnSearchBuilding').click(function (e){
+    $('#btnSearchCustomer').click(function (e){
         e.preventDefault();
         $('#listForm').submit();
     });
 
-    function deleteBuilding(id) {
-        var buildingId = [id];
-        deleteBuildings(buildingId);
+    function deleteCustomer(id) {
+        var customerId = [id];
+        deleteCustomers(customerId);
     }
 
-    function deleteBuildings(data){
+    function deleteCustomers(data){
         $.ajax({
             type: "DELETE",
-            url: "${buildingAPI}/" +data,
+            url: "${customerAPI}/" +data,
             data: JSON.stringify(data),
             success: function (response) {
                 console.log("ok rồi nhé anh ba");
@@ -799,18 +635,17 @@
             });
         });
 
-    function assignmentBuilding(buildingId) {
+    function assignmentCustomer(customerId) {
         document.getElementById("assignmentModal").classList.remove("hidden");
         document.body.classList.add("overflow-hidden"); // khóa cuộn trang khi mở modal
-        $("#buildingId").val(buildingId);
-        loadStaff(buildingId);
+        $("#customerId").val(customerId);
+        loadStaff(customerId);
     }
 
-    function loadStaff(buildingId) {
-        console.log("Hàm loadStaff bắt đầu chạy");
+    function loadStaff(customerId) {
         $.ajax({
             type: "GET",
-            url: "${buildingAPI}/" +buildingId + '/staffs',
+            url: "${customerAPI}/" +customerId + '/staffs',
             dataType: "JSON",
             success: function (response) {
                 if (!response.data || response.data.length === 0) {
@@ -823,7 +658,6 @@
                     return;
                 }
 
-                // Tạo HTML danh sách nhân viên
                 var html = '';
                 $.each(response.data, function(index, item) {
                     html += `
@@ -854,10 +688,10 @@
         });
     }
 
-    $("#btnAssignmentBuilding").click(function (e) {
+    $("#btnAssignCustomer").click(function (e) {
         e.preventDefault();
         var data = {};
-        data["buildingId"] = $("#buildingId").val();
+        data["customerId"] = $("#customerId").val();
         var staffs = $(".employee-list input[type=checkbox]:checked")
             .map(function () {
                 return $(this).val();
@@ -873,17 +707,17 @@
     function assignTask(data){
         $.ajax({
             type: "POST",
-            url: "${buildingAPI}/" +"assignment",
+            url: "${customerAPI}/" +"assignment",
             data: JSON.stringify(data),
             contentType: "application/json", // đinh dạng dữ liệu từ phía client gửi về
             dataType: "JSON", // định dạng dữ liệu từ server gửi lên
             success: function (resonse) {
                 console.log("ok rồi nhé anh ba");
-                window.location.href = "/admin/building-list";
+                window.location.href = "/admin/customer-list";
             },
             error: function (response) {
                 console.info("giao tòa nhà lỗi rồi anh ba");
-                window.location.href = "<c:url value="/admin/building-list?message=error"/>";
+                window.location.href = "<c:url value="/admin/customer-list?message=error"/>";
                 console.log(response);
             }
         });

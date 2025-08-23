@@ -32,6 +32,7 @@ public class BuildingController {
     public ModelAndView showBuildingList(@ModelAttribute BuildingSearchRequest buildingSearchRequest, HttpServletRequest request) {
         ModelAndView mav = new ModelAndView("layout");
         mav.addObject("contentPage", "admin/building/list.jsp");
+        mav.addObject("activeMenu", "building");
 
         DisplayTagUtils.of(request, buildingSearchRequest);
 
@@ -52,6 +53,7 @@ public class BuildingController {
     public ModelAndView addNewBuilding(@ModelAttribute BuildingDTO buildingDTO, HttpServletRequest request){
         ModelAndView mav = new ModelAndView("layout");
         mav.addObject("contentPage", "admin/building/edit.jsp");
+        mav.addObject("activeMenu", "building");
         mav.addObject("buildingEdit", buildingDTO);
 
         mav.addObject("districts", districtCode.type());
@@ -64,6 +66,7 @@ public class BuildingController {
     public ModelAndView buildingEdit(@PathVariable("id") Long Id , HttpServletRequest request){
         ModelAndView mav = new ModelAndView("layout");
         mav.addObject("contentPage", "admin/building/edit.jsp");
+        mav.addObject("activeMenu", "building");
 
         BuildingDTO buildingDTO = buildingService.findById(Id);
 
@@ -80,6 +83,7 @@ public class BuildingController {
     public ModelAndView buildingViewDetail(@PathVariable("id") Long Id , HttpServletRequest request){
         ModelAndView mav = new ModelAndView("layout");
         mav.addObject("contentPage", "admin/building/detail.jsp");
+        mav.addObject("activeMenu", "building");
 
         BuildingSearchResponse buildingSearchResponse = buildingService.findDetailById(Id);
 

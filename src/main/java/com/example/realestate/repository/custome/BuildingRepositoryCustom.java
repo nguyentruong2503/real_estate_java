@@ -9,5 +9,7 @@ import java.util.List;
 public interface BuildingRepositoryCustom {
     List<BuildingEntity> findAll(BuildingSearchBuilder builder, Pageable pageable);
 
+    List<BuildingEntity> findAvailableBuildings(Long customerId);
+
     int countTotalItems(BuildingSearchBuilder builder);
 }

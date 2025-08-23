@@ -1,6 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ include file="/WEB-INF/views/taglib.jsp" %>
 <c:set var="ctx" value="${pageContext.request.contextPath}" />
+<c:set var="activeMenu" value="${activeMenu}" />
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -110,48 +111,55 @@
             <!-- Navigation -->
             <nav class="flex-1 overflow-y-auto py-4">
                 <div class="space-y-1 px-4">
-                    <a
 
-                            class="nav-item flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-100"
-                    >
+                    <!-- Users -->
+                    <a href="${ctx}/admin/user-list"
+                       class="nav-item flex items-center px-3 py-2 text-sm font-medium rounded-md
+           ${fn:contains(currentUrl, '/user-list') ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'}">
                         <i class="fas fa-users mr-3"></i>
                         <span class="sidebar-text">Users</span>
                     </a>
-                    <a
-                            href="${ctx}/admin/building-list"
-                            class="nav-item flex items-center px-3 py-2 text-sm font-medium rounded-md bg-primary text-white"
-                    >
+
+                    <!-- Buildings -->
+                    <a href="${ctx}/admin/building-list"
+                       class="nav-item flex items-center px-3 py-2 text-sm font-medium rounded-md
+            ${activeMenu eq 'building' ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'}">
                         <i class="fas fa-building mr-3"></i>
                         <span class="sidebar-text">Buildings</span>
                     </a>
-                    <a
 
-                            class="nav-item flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-100"
-                    >
+                    <!-- Customers -->
+                    <a href="${ctx}/admin/customer-list"
+                       class="nav-item flex items-center px-3 py-2 text-sm font-medium rounded-md
+            ${activeMenu eq 'customer' ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'}">
                         <i class="fas fa-home mr-3"></i>
-                        <span class="sidebar-text">Properties</span>
+                        <span class="sidebar-text">Customer</span>
                     </a>
-                    <a
 
-                            class="nav-item flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-100"
-                    >
+                    <!-- Contracts -->
+                    <a href="${ctx}/admin/contract-list"
+                       class="nav-item flex items-center px-3 py-2 text-sm font-medium rounded-md
+           ${fn:contains(currentUrl, '/contract-list') ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'}">
                         <i class="fas fa-file-contract mr-3"></i>
                         <span class="sidebar-text">Contracts</span>
                     </a>
-                    <a
 
-                            class="nav-item flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-100"
-                    >
+                    <!-- Reports -->
+                    <a href="${ctx}/admin/report-list"
+                       class="nav-item flex items-center px-3 py-2 text-sm font-medium rounded-md
+           ${fn:contains(currentUrl, '/report-list') ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'}">
                         <i class="fas fa-chart-line mr-3"></i>
                         <span class="sidebar-text">Reports</span>
                     </a>
-                    <a
 
-                            class="nav-item flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-600 hover:bg-gray-100"
-                    >
+                    <!-- Settings -->
+                    <a href="${ctx}/admin/settings"
+                       class="nav-item flex items-center px-3 py-2 text-sm font-medium rounded-md
+           ${fn:contains(currentUrl, '/settings') ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'}">
                         <i class="fas fa-cog mr-3"></i>
                         <span class="sidebar-text">Settings</span>
                     </a>
+
                 </div>
             </nav>
 
