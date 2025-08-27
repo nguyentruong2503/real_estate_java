@@ -4,6 +4,7 @@ import com.example.realestate.builder.BuildingSearchBuilder;
 import com.example.realestate.entity.BuildingEntity;
 import com.example.realestate.repository.custome.BuildingRepositoryCustom;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -12,6 +13,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Repository
 public class BuildingRepositoryImpl implements BuildingRepositoryCustom {
 
     @PersistenceContext

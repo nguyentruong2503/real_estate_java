@@ -17,12 +17,14 @@ import com.example.realestate.repository.BuildingRepository;
 import com.example.realestate.repository.CustomerRepository;
 import com.example.realestate.repository.UserRepository;
 import com.example.realestate.repository.custome.TransactionRepository;
+import com.example.realestate.security.SecurityUtils;
 import com.example.realestate.service.CustomerService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -85,6 +87,7 @@ public class CustomerServiceImpl implements CustomerService {
             foundCustomer.setCreatedBy(createdBy);
             foundCustomer.setCreatedDate(createdDate);
             foundCustomer.setModifiedDate(new Date());
+            foundCustomer.setModifiedBy(SecurityUtils.getPrincipal().getFullName());
 
             customerEntity = foundCustomer;
 
@@ -170,6 +173,10 @@ public class CustomerServiceImpl implements CustomerService {
         if(transactionId != null){
             TransactionEntity existTransaction = transactionRepository.findById(transactionId)
                     .orElseThrow(() -> new NotFoundException("Transaction not found"));
+
+            String createdBy = existTransaction.getCreatedBy();
+            Date createdDate = existTransaction.getCreatedDate();
+
             CustomerEntity customer = customerRepository.findById(transactionDTO.getCustomerId())
                     .orElseThrow(() -> new NotFoundException("Customer not found!"));
             existTransaction.setCustomerId(customer);
@@ -183,6 +190,10 @@ public class CustomerServiceImpl implements CustomerService {
 
                 updateBuildingStatus(building, transactionDTO.getTransactionType());
             }
+            existTransaction.setCreatedBy(createdBy);
+            existTransaction.setCreatedDate(createdDate);
+            existTransaction.setModifiedDate(new Date());
+            existTransaction.setModifiedBy(SecurityUtils.getPrincipal().getFullName());
             existTransaction.setStartDate(transactionDTO.getStartDate());
             existTransaction.setEndDate(transactionDTO.getEndDate());
 
@@ -201,6 +212,8 @@ public class CustomerServiceImpl implements CustomerService {
                 transactionEntity.setBuilding(building);
                 updateBuildingStatus(building, transactionDTO.getTransactionType());
             }
+            transactionEntity.setCreatedDate(new Date());
+            transactionEntity.setCreatedBy(SecurityUtils.getPrincipal().getFullName());
             transactionEntity.setStartDate(transactionDTO.getStartDate());
             transactionEntity.setEndDate(transactionDTO.getEndDate());
 

@@ -2,11 +2,7 @@
 <%@ include file="/WEB-INF/views/taglib.jsp" %>
 <c:url var="customerListURL" value="/admin/customer-list"/>
 <c:url var="customerAPI" value="/api/customer"/>
-<%
-    request.setAttribute("contentPage", "content/user-list-content.jsp");
-    RequestDispatcher rd = request.getRequestDispatcher("layout.jsp");
-    rd.forward(request, response);
-%>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -115,98 +111,6 @@
     </style>
 </head>
 <body class="bg-gray-100 font-sans">
-<header class="bg-white shadow-sm">
-    <div class="px-4 py-3 flex items-center justify-between">
-        <div class="flex items-center">
-            <button id="mobileMenuButton" class="md:hidden text-gray-500 mr-2">
-                <i class="fas fa-bars text-xl"></i>
-            </button>
-            <h1 class="text-xl font-semibold text-gray-800">
-                Customer Management
-            </h1>
-        </div>
-        <div class="flex items-center space-x-4">
-            <!-- Search Button for Mobile -->
-            <button
-                    id="mobileSearchButton"
-                    class="md:hidden text-gray-500 hover:text-primary"
-            >
-                <i class="fas fa-search text-xl"></i>
-            </button>
-
-            <!-- Search Bar for Desktop -->
-            <div class="relative hidden md:block">
-                <div class="relative">
-                    <input
-                            type="text"
-                            id="searchInput"
-                            placeholder="Search customer..."
-                            class="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200"
-                    />
-                    <div class="absolute left-3 top-2.5 text-gray-400">
-                        <i class="fas fa-search"></i>
-                    </div>
-                    <div
-                            id="searchDropdown"
-                            class="search-dropdown absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 max-h-96 overflow-y-auto"
-                    >
-                        <!-- Search results will appear here -->
-                    </div>
-                </div>
-            </div>
-
-            <div class="relative">
-                <button class="text-gray-500 hover:text-primary">
-                    <i class="fas fa-bell text-xl"></i>
-                    <span
-                            class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"
-                    ></span>
-                </button>
-            </div>
-            <div class="relative">
-                <button class="text-gray-500 hover:text-primary">
-                    <i class="fas fa-envelope text-xl"></i>
-                    <span
-                            class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"
-                    ></span>
-                </button>
-            </div>
-            <div class="border-l border-gray-200 h-8"></div>
-            <div class="flex items-center">
-                <div
-                        class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white"
-                >
-                    <i class="fas fa-user"></i>
-                </div>
-                <span class="ml-2 hidden md:inline">Admin</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Mobile Search Bar (hidden by default) -->
-    <div
-            id="mobileSearchBar"
-            class="px-4 py-3 hidden md:hidden bg-gray-50 border-t border-gray-200"
-    >
-        <div class="relative">
-            <input
-                    type="text"
-                    id="mobileSearchInput"
-                    placeholder="Search customer..."
-                    class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            />
-            <div class="absolute left-3 top-2.5 text-gray-400">
-                <i class="fas fa-search"></i>
-            </div>
-            <div
-                    id="mobileSearchDropdown"
-                    class="search-dropdown absolute z-10 mt-1 w-full bg-white rounded-lg shadow-lg border border-gray-200 max-h-96 overflow-y-auto"
-            >
-                <!-- Mobile search results will appear here -->
-            </div>
-        </div>
-    </div>
-</header>
 
 <main class="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50">
     <!-- Page Header -->
@@ -354,7 +258,7 @@
 
                     <display:column title="Tên khách hàng" property="fullName"
                                     headerClass="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                    class="px-6 py-4 text-sm text-gray-900"/>
+                                    class="px-6 py-4 text-sm text-gray-500"/>
 
                     <display:column title="SĐT" property="phone"
                                     headerClass="px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider"

@@ -1,10 +1,5 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: LENOVO
-  Date: 8/23/2025
-  Time: 10:19 PM
-  To change this template use File | Settings | File Templates.
---%>
+<%@ include file="/WEB-INF/views/taglib.jsp" %>
+
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html lang="vi">
@@ -87,7 +82,7 @@
 
     <nav class="hidden md:flex space-x-8">
       <a
-              href="#"
+              href="/homepage/trang-chu"
               class="text-dark font-medium hover:text-secondary transition"
       >Trang Chủ</a
       >
@@ -97,7 +92,7 @@
       >Bất Động Sản</a
       >
       <a
-              href="#"
+              href="/homepage/gioi-thieu"
               class="text-dark font-medium hover:text-secondary transition"
       >Giới thiệu</a
       >
@@ -107,7 +102,7 @@
       >Tin tức</a
       >
       <a
-              href="#"
+              href="/homepage/lien-he"
               class="text-dark font-medium hover:text-secondary transition"
       >Liên Hệ</a
       >
@@ -119,11 +114,26 @@
       >
         Đăng Tin BĐS
       </button>
-      <button
-              class="bg-secondary hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium transition"
-      >
-        Đăng Nhập
-      </button>
+      <sec:authorize access="isAnonymous()">
+        <!-- Khi CHƯA đăng nhập -->
+        <a
+                href="/login"
+                class="bg-secondary hover:bg-orange-600 text-white px-4 py-2 rounded-lg font-medium transition"
+        >
+          Đăng Nhập
+        </a>
+      </sec:authorize>
+
+      <sec:authorize access="isAuthenticated()">
+        <!-- Khi ĐÃ đăng nhập -->
+        <a
+                href="/home"
+                class="bg-primary hover:bg-blue-800 text-white px-4 py-2 rounded-lg font-medium transition"
+        >
+          Trang Quản Trị
+        </a>
+      </sec:authorize>
+
       <button class="md:hidden text-dark">
         <i class="fas fa-bars text-2xl"></i>
       </button>
