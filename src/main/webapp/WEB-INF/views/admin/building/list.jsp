@@ -376,14 +376,16 @@
 
                 <!-- Chọn nhân viên phụ trách -->
                 <div class="col-span-full">
-                    <label
-                            class="block text-sm font-medium text-gray-700 mb-1"
-                    >Chọn nhân viên phụ trách</label
-                    >
-                    <form:select path="staffId" class="w-full border px-3 py-2 rounded-md">
-                        <form:option value="">--Chọn nhân viên--</form:option>
-                        <form:options items="${listStaffs}"></form:options>
-                    </form:select>
+                    <security:authorize access="hasRole('MANAGER')">
+                        <label
+                                class="block text-sm font-medium text-gray-700 mb-1"
+                        >Chọn nhân viên phụ trách</label
+                        >
+                        <form:select path="staffId" class="w-full border px-3 py-2 rounded-md">
+                            <form:option value="">--Chọn nhân viên--</form:option>
+                            <form:options items="${listStaffs}"></form:options>
+                        </form:select>
+                    </security:authorize>
                 </div>
 
                 <!-- Checkbox options -->
@@ -469,12 +471,16 @@
                             <a class="text-blue-600 hover:text-blue-900" href="/admin/building-edit-${tableList.id}" title="Sửa">
                                 <i class="fas fa-edit"></i>
                             </a>
-                            <button class="text-red-600 hover:text-red-900" onclick="deleteBuilding(${tableList.id})" title="Xóa">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                            <button class="text-purple-600 hover:text-purple-900" onclick="assignmentBuilding(${tableList.id})" title="Giao tòa nhà">
-                                <i class="fas fa-user-tag"></i>
-                            </button>
+                            <security:authorize access="hasRole('MANAGER')">
+                                <button class="text-red-600 hover:text-red-900" onclick="deleteBuilding(${tableList.id})" title="Xóa">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </security:authorize>
+                            <security:authorize access="hasRole('MANAGER')">
+                                <button class="text-purple-600 hover:text-purple-900" onclick="assignmentBuilding(${tableList.id})" title="Giao tòa nhà">
+                                    <i class="fas fa-user-tag"></i>
+                                </button>
+                            </security:authorize>
                             <a class="text-gray-600 hover:text-gray-900" href="/admin/building-view-${tableList.id}" title="Xem chi tiết">
                                 <i class="fas fa-eye"></i>
                             </a>

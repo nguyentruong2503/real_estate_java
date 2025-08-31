@@ -4,6 +4,7 @@ import com.example.realestate.enums.transactionType;
 import com.example.realestate.model.dto.BuildingDTO;
 import com.example.realestate.model.dto.CustomerDTO;
 import com.example.realestate.model.dto.TransactionDTO;
+import com.example.realestate.security.SecurityUtils;
 import com.example.realestate.service.BuildingService;
 import com.example.realestate.service.CustomerService;
 import com.example.realestate.service.UserService;
@@ -38,6 +39,11 @@ public class CustomerController {
         mav.addObject("activeMenu", "customer");
 
         DisplayTagUtils.of(request, customerDTO);
+
+        if (SecurityUtils.getAuthorities().contains("ROLE_STAFF")){
+            Long staffID = SecurityUtils.getPrincipal().getId();
+            customerDTO.setStaffId(staffID);
+        }
 
         List<CustomerDTO> responseList = customerService.findAll(customerDTO,
                 PageRequest.of(customerDTO.getPage() - 1, customerDTO.getMaxPageItems()));

@@ -235,9 +235,11 @@
                                 <a class="text-blue-600 hover:text-blue-900" href="/admin/user-edit-${tableList.id}" title="Sửa">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <button class="text-red-600 hover:text-red-900" onclick="deleteUser(${tableList.id})" title="Xóa">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <security:authorize access="hasRole('MANAGER')">
+                                    <button class="text-red-600 hover:text-red-900" onclick="deleteUser(${tableList.id})" title="Xóa">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </security:authorize>
                             </c:if>
                             <c:if test="${tableList.roleCode == 'MANAGER'}">
                                 <p>Không đươc thao tác</p>

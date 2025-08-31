@@ -24,6 +24,12 @@
     <div class="container-login100">
         <div class="wrap-login100">
 
+            <c:if test="${param.accessDenied != null}">
+                <div class="alert alert-danger w-100 text-center">
+                    Bạn không có quyền truy cập trang này!
+                </div>
+            </c:if>
+
             <!-- Thông báo lỗi / logout -->
             <c:if test="${param.error != null}">
                 <div class="alert alert-danger w-100 text-center">

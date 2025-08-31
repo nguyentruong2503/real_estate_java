@@ -47,4 +47,10 @@ public class CustomerAPI {
         customerService.insertOrUpdateTransaction(transactionDTO);
         System.out.println("ok");
     }
+
+    @PostMapping("/from-contact")
+    public CustomerDTO addCustomerFromContact(@RequestBody CustomerDTO customerDTO){
+        customerService.insertCustomerFromContact(customerDTO);
+        return customerDTO;
+    }
 }

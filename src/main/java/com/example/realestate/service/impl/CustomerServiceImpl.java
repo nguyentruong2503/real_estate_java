@@ -102,6 +102,18 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
+    public CustomerDTO insertCustomerFromContact(CustomerDTO customerDTO) {
+        CustomerEntity customerEntity = modelMapper.map(customerDTO,CustomerEntity.class);
+        customerEntity.setCreatedDate(new Date());
+        customerEntity.setCreatedBy("client");
+        customerEntity.setActive(true);
+        customerRepository.save(customerEntity);
+        customerDTO.setId(customerEntity.getId());
+
+        return customerDTO;
+    }
+
+    @Override
     public void deleteCustomer(List<Long> ids) {
         for(Long id : ids) {
             CustomerEntity customerEntity = customerRepository.findById(id).get();

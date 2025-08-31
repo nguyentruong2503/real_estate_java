@@ -517,6 +517,25 @@
                     Hình ảnh tòa nhà
                 </h2>
 
+                <c:if test="${not empty buildingEdit.imageUrls}">
+                    <div class="mb-4">
+                        <h3 class="text-lg font-medium text-gray-700 mb-2">Ảnh hiện tại</h3>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4" id="oldImages">
+                            <c:forEach var="img" items="${buildingEdit.imageUrls}">
+                                <div class="relative border rounded-lg overflow-hidden" data-url="${img}">
+                                    <img src="${img}" alt="Building image" class="w-full h-32 object-cover"/>
+                                    <button type="button"
+                                            class="absolute top-1 right-1 bg-red-500 text-white text-xs px-2 py-1 rounded"
+                                            onclick="removeOldImage(this)">
+                                        Xóa
+                                    </button>
+                                </div>
+                            </c:forEach>
+                        </div>
+                    </div>
+                </c:if>
+
+
                 <div
                         class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center"
                 >
@@ -586,32 +605,68 @@
         });
     }
 
+    let keptOldImages = [];
+    let newImages = [];
+
+    // Xóa ảnh cũ
+    function removeOldImage(btn) {
+        const wrapper = btn.closest("div[data-url]");
+        const url = wrapper.getAttribute("data-url");
+        keptOldImages = keptOldImages.filter(img => img !== url);
+        wrapper.remove();
+    }
+
+
+    document.getElementById("uploadArea").addEventListener("click", () => {
+        document.getElementById("imageUpload").click();
+    });
+
+    document.getElementById("imageUpload").addEventListener("change", function () {
+        const preview = document.getElementById("imagePreview");
+        preview.innerHTML = "";
+        preview.classList.remove("hidden");
+
+        Array.from(this.files).forEach(file => {
+            const reader = new FileReader();
+            reader.onload = e => {
+                const img = document.createElement("img");
+                img.src = e.target.result;
+                img.className = "w-full h-32 object-cover rounded border";
+                preview.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+
     $("#btnInsertOrUpdateBuilding").click(function () {
         var data = {};
         var typeCode = [];
         var formData = $("#listForm").serializeArray();
 
         $.each(formData, function (i, v) {
-            if (v.name != "typeCode") {
-                data["" + v.name + ""] = v.value;
+            if (v.name !== "typeCode") {
+                data[v.name] = v.value;
             } else {
                 typeCode.push(v.value);
             }
         });
         data["typeCode"] = typeCode;
-        if (!data.district || !data.ward || !data.numberOfBasement || !data.rentArea
-            || !data.managerName || !data.managerPhone || !data.rentPrice || typeCode.length === 0) {
-            alert("Vui lòng điền đầy đủ thông tin bắt buộc (quận, phường, tầng hầm, diện tích thuê, giá thuê, tên/sđt quản lý, loại tòa nhà).");
-            return;
-        }
+
+        // gom ảnh cũ còn giữ lại
+        keptOldImages = [];
+        $("#oldImages > div[data-url]").each(function () {
+            keptOldImages.push($(this).attr("data-url"));
+        });
 
         const files = document.getElementById("imageUpload").files;
         if (files.length > 0) {
             uploadImagesToCloudinary(files).then(function (urls) {
-                data["imageUrls"] = urls; // gửi mảng url ảnh lên server
+                newImages = urls;
+                data["imageUrls"] = keptOldImages.concat(newImages);
                 insertOrUpdateBuilding(data);
             });
         } else {
+            data["imageUrls"] = keptOldImages;
             insertOrUpdateBuilding(data);
         }
     });
@@ -636,30 +691,6 @@
 
     $('#btnCancel').click(function (){
         window.location.href = "/admin/building-list";
-    });
-
-    document.getElementById("imageUpload").addEventListener("change", function () {
-        const preview = document.getElementById("imagePreview");
-        preview.innerHTML = ""; // Clear cũ trước
-
-        const files = this.files;
-        if (!files || files.length === 0) return;
-
-        for (const file of files) {
-            if (!file.type.startsWith("image/")) continue; // Bỏ qua file không phải ảnh
-
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                const img = document.createElement("img");
-                img.src = e.target.result;
-                img.style.maxWidth = "150px";
-                img.style.margin = "8px";
-                img.style.border = "1px solid #ccc";
-                img.style.borderRadius = "8px";
-                preview.appendChild(img);
-            };
-            reader.readAsDataURL(file); // Đọc file để tạo ảnh preview
-        }
     });
 
 </script>

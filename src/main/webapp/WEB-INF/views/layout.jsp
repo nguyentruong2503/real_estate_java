@@ -14,6 +14,7 @@
             rel="stylesheet"
             href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
     />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <script>
         tailwind.config = {
             theme: {
@@ -194,14 +195,14 @@
                     <div class="flex items-center space-x-4">
 
                         <div class="relative">
-                            <button class="text-gray-500 hover:text-primary">
-                                <i class="fas fa-bell text-xl"></i>
+                            <a href="/admin/user/profile-${SecurityUtils.getPrincipal().getId()}" class="text-gray-500 hover:text-primary" title="Thông tin cá nhân">
+                                <i class="bi bi-person-circle text-xl"></i>
                                 <span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
-                            </button>
+                            </a>
                         </div>
                         <div class="relative">
                             <a href="/admin/changePass" class="text-gray-500 hover:text-primary" title="Đổi mật khẩu">
-                                <i class="fas fa-cog text-xl"></i>
+                                <i class="bi bi-person-fill-lock text-xl"></i>
                                 <span class="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
                             </a>
                         </div>

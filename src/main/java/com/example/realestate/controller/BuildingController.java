@@ -5,6 +5,7 @@ import com.example.realestate.enums.districtCode;
 import com.example.realestate.model.dto.BuildingDTO;
 import com.example.realestate.model.request.BuildingSearchRequest;
 import com.example.realestate.model.response.BuildingSearchResponse;
+import com.example.realestate.security.SecurityUtils;
 import com.example.realestate.service.BuildingService;
 import com.example.realestate.service.UserService;
 import com.example.realestate.utils.DisplayTagUtils;
@@ -35,6 +36,12 @@ public class BuildingController {
         mav.addObject("activeMenu", "building");
 
         DisplayTagUtils.of(request, buildingSearchRequest);
+
+        if(SecurityUtils.getAuthorities().contains("ROLE_STAFF")){
+            Long staffID = SecurityUtils.getPrincipal().getId();
+            buildingSearchRequest.setStaffId(staffID);
+
+        }
 
         List<BuildingSearchResponse> responseList = buildingService.findAll(buildingSearchRequest,
                 PageRequest.of(buildingSearchRequest.getPage() - 1, buildingSearchRequest.getMaxPageItems()));

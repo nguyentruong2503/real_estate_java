@@ -87,7 +87,7 @@
             >Trang Chủ</a
             >
             <a
-                    href="#"
+                    href="/homepage/bat-dong-san"
                     class="text-dark font-medium hover:text-secondary transition"
             >Bất Động Sản</a
             >
@@ -114,7 +114,7 @@
             >
                 Đăng Tin BĐS
             </button>
-            <sec:authorize access="isAnonymous()">
+            <security:authorize access="isAnonymous()">
                 <!-- Khi CHƯA đăng nhập -->
                 <a
                         href="/login"
@@ -122,9 +122,9 @@
                 >
                     Đăng Nhập
                 </a>
-            </sec:authorize>
+            </security:authorize>
 
-            <sec:authorize access="isAuthenticated()">
+            <security:authorize access="isAuthenticated()">
                 <!-- Khi ĐÃ đăng nhập -->
                 <a
                         href="/home"
@@ -132,7 +132,7 @@
                 >
                     Trang Quản Trị
                 </a>
-            </sec:authorize>
+            </security:authorize>
             <button class="md:hidden text-dark">
                 <i class="fas fa-bars text-2xl"></i>
             </button>

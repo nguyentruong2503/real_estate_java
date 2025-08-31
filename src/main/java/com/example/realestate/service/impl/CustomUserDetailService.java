@@ -35,7 +35,7 @@ public class CustomUserDetailService implements UserDetailsService{
         }
 
         List<GrantedAuthority> authorities = userDTO.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority(role.getCode()))
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getCode()))
                 .collect(Collectors.toList());
 
         return new MyUserDetail(userDTO, authorities);

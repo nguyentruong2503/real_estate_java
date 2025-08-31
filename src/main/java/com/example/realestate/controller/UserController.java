@@ -72,4 +72,14 @@ public class UserController {
         return mav;
     }
 
+    @RequestMapping(value = "/admin/user/profile-{id}", method = RequestMethod.GET)
+    public ModelAndView updateInfo(@PathVariable("id") Long id, HttpServletRequest request) {
+        ModelAndView mav = new ModelAndView("layout");
+        mav.addObject("contentPage", "admin/user/profile.jsp");
+        UserDTO userDTO = userService.findUserById(id);
+        mav.addObject("userEdit", userDTO);
+        return mav;
+    }
+
+
 }

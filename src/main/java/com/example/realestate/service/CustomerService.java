@@ -15,6 +15,8 @@ public interface CustomerService {
 
     CustomerDTO insertOrUpdateCustomer(CustomerDTO customerDTO);
 
+    CustomerDTO insertCustomerFromContact(CustomerDTO customerDTO);
+
     void deleteCustomer(List<Long> ids);
 
     CustomerDTO findById(Long id);
