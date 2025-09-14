@@ -191,4 +191,28 @@ public class BuildingServiceImpl implements BuildingService {
         buildingRepository.save(buildingEntity);
         return assignmentBuildingDTO;
     }
+
+    @Override
+    public List<BuildingDTO> findDepositedBuildings(Long customerId) {
+        List<BuildingEntity> buildingEntityList = buildingRepository.findAvailableBuildings(customerId);
+        List<BuildingDTO> buildingDTOList = new ArrayList<>();;
+
+        for(BuildingEntity it : buildingEntityList){
+            BuildingDTO buildingDTO = buildingConverter.toBuildingDTO(it);
+            buildingDTOList.add(buildingDTO);
+        }
+        return buildingDTOList;
+    }
+
+    @Override
+    public List<BuildingDTO> findAvailableBuildings() {
+        List<BuildingEntity> buildingEntityList = buildingRepository.findByStatus("AVAILABLE");
+        List<BuildingDTO> buildingDTOList = new ArrayList<>();;
+
+        for(BuildingEntity it : buildingEntityList){
+            BuildingDTO buildingDTO = buildingConverter.toBuildingDTO(it);
+            buildingDTOList.add(buildingDTO);
+        }
+        return buildingDTOList;
+    }
 }

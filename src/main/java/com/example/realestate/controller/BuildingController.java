@@ -5,6 +5,7 @@ import com.example.realestate.enums.districtCode;
 import com.example.realestate.model.dto.BuildingDTO;
 import com.example.realestate.model.request.BuildingSearchRequest;
 import com.example.realestate.model.response.BuildingSearchResponse;
+import com.example.realestate.security.SecurityUtils;
 import com.example.realestate.service.BuildingService;
 import com.example.realestate.service.UserService;
 import com.example.realestate.utils.DisplayTagUtils;
@@ -32,8 +33,15 @@ public class BuildingController {
     public ModelAndView showBuildingList(@ModelAttribute BuildingSearchRequest buildingSearchRequest, HttpServletRequest request) {
         ModelAndView mav = new ModelAndView("layout");
         mav.addObject("contentPage", "admin/building/list.jsp");
+        mav.addObject("activeMenu", "building");
 
         DisplayTagUtils.of(request, buildingSearchRequest);
+
+        if(SecurityUtils.getAuthorities().contains("ROLE_STAFF")){
+            Long staffID = SecurityUtils.getPrincipal().getId();
+            buildingSearchRequest.setStaffId(staffID);
+
+        }
 
         List<BuildingSearchResponse> responseList = buildingService.findAll(buildingSearchRequest,
                 PageRequest.of(buildingSearchRequest.getPage() - 1, buildingSearchRequest.getMaxPageItems()));
@@ -52,6 +60,7 @@ public class BuildingController {
     public ModelAndView addNewBuilding(@ModelAttribute BuildingDTO buildingDTO, HttpServletRequest request){
         ModelAndView mav = new ModelAndView("layout");
         mav.addObject("contentPage", "admin/building/edit.jsp");
+        mav.addObject("activeMenu", "building");
         mav.addObject("buildingEdit", buildingDTO);
 
         mav.addObject("districts", districtCode.type());
@@ -64,6 +73,7 @@ public class BuildingController {
     public ModelAndView buildingEdit(@PathVariable("id") Long Id , HttpServletRequest request){
         ModelAndView mav = new ModelAndView("layout");
         mav.addObject("contentPage", "admin/building/edit.jsp");
+        mav.addObject("activeMenu", "building");
 
         BuildingDTO buildingDTO = buildingService.findById(Id);
 
@@ -80,6 +90,7 @@ public class BuildingController {
     public ModelAndView buildingViewDetail(@PathVariable("id") Long Id , HttpServletRequest request){
         ModelAndView mav = new ModelAndView("layout");
         mav.addObject("contentPage", "admin/building/detail.jsp");
+        mav.addObject("activeMenu", "building");
 
         BuildingSearchResponse buildingSearchResponse = buildingService.findDetailById(Id);
 

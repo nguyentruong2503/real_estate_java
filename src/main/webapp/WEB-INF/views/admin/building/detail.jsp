@@ -132,13 +132,13 @@
                         id="mainImage"
                         src="${firstImage}"
                         alt="Main building image"
-                        class="w-full h-96 object-cover rounded-xl"
+                        class="w-full h-[500px] object-cover rounded-xl"
                 />
             </div>
         </c:if>
 
         <!-- Thumbnails -->
-        <div class="grid grid-cols-2 gap-2 lg:grid-cols-1">
+        <div class="flex flex-col gap-2 h-[500px] overflow-y-auto">
             <c:forEach var="img" items="${buildingDetail.imageUrls}">
                 <div class="rounded-lg overflow-hidden border-2 border-transparent cursor-pointer">
                     <img
@@ -152,6 +152,7 @@
             </c:forEach>
         </div>
     </div>
+
 
     <!-- Building Details Section -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
@@ -185,10 +186,10 @@
                         </div>
                     </div>
                     <div class="flex items-center">
-                        <i class="bi bi-currency-dollar text-blue-500 mr-3"></i>
+                        <i class="bi bi-rulers text-blue-500 mr-3"></i>
                         <div>
-                            <div class="text-gray-500 text-sm">Giá thuê</div>
-                            <div class="font-semibold">${buildingDetail.rentPrice}</div>
+                            <div class="text-gray-500 text-sm">Kiến trúc</div>
+                            <div class="font-semibold">${buildingDetail.structure}</div>
                         </div>
                     </div>
                     <div class="flex items-center">
@@ -269,29 +270,41 @@
 
         <!-- Sidebar -->
         <div class="lg:col-span-1">
-            <!-- Contact Card -->
-            <div class="bg-white rounded-xl shadow-md p-6 sticky top-4 mb-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-4">
-                    Liên hệ quản lý
-                </h2>
-                <div class="flex items-center mb-4">
-                    <div
-                            class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4"
-                    >
-                        <i class="fas fa-user-tie text-blue-600 text-xl"></i>
-                    </div>
-                    <div>
-                        <div class="font-semibold">${buildingDetail.managerName}</div>
-                        <div class="text-gray-500 text-sm">Chủ nhà</div>
-                    </div>
+
+            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl shadow-lg p-6 mb-6 text-center">
+                <h2 class="text-lg font-semibold mb-2">Giá thuê</h2>
+                <div class="text-4xl font-extrabold mb-2">
+                    ${buildingDetail.rentPrice} VNĐ
                 </div>
-                <div class="space-y-3">
-                    <div class="flex items-center text-gray-700">
-                        <i class="fas fa-phone-alt mr-3 text-blue-500"></i>
-                        <span>${buildingDetail.managerPhone}</span>
-                    </div>
-                </div>
+                <p class="text-sm opacity-90">/ tháng</p>
             </div>
+
+            <!-- Contact Card -->
+            <security:authorize access="hasRole('MANAGER')">
+                <div class="bg-white rounded-xl shadow-md p-6 sticky top-4 mb-6">
+                    <h2 class="text-xl font-bold text-gray-900 mb-4">
+                        Liên hệ quản lý
+                    </h2>
+                    <div class="flex items-center mb-4">
+                        <div
+                                class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mr-4"
+                        >
+                            <i class="fas fa-user-tie text-blue-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <div class="font-semibold">${buildingDetail.managerName}</div>
+                            <div class="text-gray-500 text-sm">Chủ nhà</div>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-center text-gray-700">
+                            <i class="fas fa-phone-alt mr-3 text-blue-500"></i>
+                            <span>${buildingDetail.managerPhone}</span>
+                        </div>
+                    </div>
+                </div>
+            </security:authorize>
+
 
             <!-- Location Map -->
             <div class="bg-white rounded-xl shadow-md p-6 mb-6">

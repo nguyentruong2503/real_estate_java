@@ -4,6 +4,7 @@ import com.example.realestate.builder.BuildingSearchBuilder;
 import com.example.realestate.entity.BuildingEntity;
 import com.example.realestate.repository.custome.BuildingRepositoryCustom;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -12,6 +13,7 @@ import java.lang.reflect.Field;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Repository
 public class BuildingRepositoryImpl implements BuildingRepositoryCustom {
 
     @PersistenceContext
@@ -105,6 +107,7 @@ public class BuildingRepositoryImpl implements BuildingRepositoryCustom {
         return query.getResultList();
     }
 
+
     @Override
     public int countTotalItems(BuildingSearchBuilder builder) {
         StringBuilder sql = new StringBuilder("SELECT COUNT(DISTINCT b.id) FROM building b ");
@@ -120,4 +123,20 @@ public class BuildingRepositoryImpl implements BuildingRepositoryCustom {
         Number result = (Number) query.getSingleResult();
         return result.intValue();
     }
+
+    @Override
+    public List<BuildingEntity> findAvailableBuildings(Long customerId) {
+        String sql = "SELECT * " +
+                "FROM building b " +
+                "WHERE b.status = 'DEPOSITED' " +
+                "AND EXISTS ( " +
+                "   SELECT 1 " +
+                "   FROM transaction t " +
+                "   WHERE t.building_id = b.id " +
+                "   AND t.customer_id = " + customerId +
+                ")";
+        Query query = entityManager.createNativeQuery(sql, BuildingEntity.class);
+        return query.getResultList();
+    }
+
 }

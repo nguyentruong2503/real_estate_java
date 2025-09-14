@@ -127,6 +127,9 @@ public class BuildingEntity extends BaseEntity{
     @OneToMany(mappedBy = "building", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BuildingImageEntity> images = new ArrayList<>();
 
+    @OneToMany(mappedBy = "building", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<TransactionEntity> transactionEntities = new ArrayList<>();
+
     public String getName() {
         return name;
     }
@@ -421,5 +424,13 @@ public class BuildingEntity extends BaseEntity{
 
     public void setHouse_number(String house_number) {
         this.house_number = house_number;
+    }
+
+    public List<TransactionEntity> getTransactionEntities() {
+        return transactionEntities;
+    }
+
+    public void setTransactionEntities(List<TransactionEntity> transactionEntities) {
+        this.transactionEntities = transactionEntities;
     }
 }

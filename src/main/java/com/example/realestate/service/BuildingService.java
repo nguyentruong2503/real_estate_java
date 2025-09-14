@@ -25,4 +25,9 @@ public interface BuildingService {
     BuildingDTO insertBuildingOrUpdate(BuildingDTO buildingDTO);
     void deleteBuilding(Long id);
     public AssignmentBuildingDTO addAssignmentBuilding(AssignmentBuildingDTO assignmentBuildingDTO);
+
+    List<BuildingDTO> findDepositedBuildings(Long customerId);
+
+    List<BuildingDTO> findAvailableBuildings();
+
 }
