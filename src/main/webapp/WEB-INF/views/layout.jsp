@@ -150,7 +150,7 @@
                     </a>
 
                     <!-- Reports -->
-                    <a href="${ctx}/admin/report-list"
+                    <a href="#"
                        class="nav-item flex items-center px-3 py-2 text-sm font-medium rounded-md
            ${fn:contains(currentUrl, '/report-list') ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'}">
                         <i class="fas fa-chart-line mr-3"></i>
@@ -158,7 +158,7 @@
                     </a>
 
                     <!-- Settings -->
-                    <a href="${ctx}/admin/settings"
+                    <a href="#"
                        class="nav-item flex items-center px-3 py-2 text-sm font-medium rounded-md
            ${fn:contains(currentUrl, '/settings') ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-100'}">
                         <i class="fas fa-cog mr-3"></i>
