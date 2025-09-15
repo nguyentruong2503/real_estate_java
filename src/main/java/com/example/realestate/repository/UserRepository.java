@@ -26,4 +26,16 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> , UserRe
 
     UserEntity findOneByUserName(String userName);
 
+    boolean existsByUserNameAndIdNot(String username, Long id);
+
+    boolean existsByPhoneAndIdNot(String phone, Long id);
+
+    boolean existsByEmailAndIdNot(String email, Long id);
+
+    boolean existsByUserName(String username);
+
+    boolean existsByPhone(String phone);
+
+    boolean existsByEmail(String email);
+
 }

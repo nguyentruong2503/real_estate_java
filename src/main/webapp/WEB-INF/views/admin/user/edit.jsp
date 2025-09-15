@@ -240,12 +240,17 @@
       contentType: "application/json", // đinh dạng dữ liệu từ phía client gửi về
       dataType: "JSON", // định dạng dữ liệu từ server gửi lên
       success: function (respond) {
-        console.log("ok rồi nhé anh ba");
+        console.log("ok");
         window.location.href = "/admin/user-list";
       },
       error: function (response) {
         console.log("lỗi rồi anh ba");
         console.log(response);
+        if (response.responseJSON && response.responseJSON.error) {
+          alert(response.responseJSON.error);
+        } else {
+          alert("Đã xảy ra lỗi không xác định!");
+        }
       }
     });
   }

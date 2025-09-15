@@ -3,6 +3,7 @@ package com.example.realestate.service.impl;
 import com.example.realestate.converter.UserConverter;
 import com.example.realestate.entity.RoleEntity;
 import com.example.realestate.entity.UserEntity;
+import com.example.realestate.exception.DuplicateFieldException;
 import com.example.realestate.exception.NotFoundException;
 import com.example.realestate.model.dto.PasswordDTO;
 import com.example.realestate.model.dto.UserDTO;
@@ -89,6 +90,15 @@ public class UserServiceImpl implements UserService {
         if(userID != null){
             UserEntity existEntity = userRepository.findById(userID).orElseThrow(() -> new NotFoundException("User not found!"));
 
+            if (userRepository.existsByUserNameAndIdNot(userDTO.getUserName(), userID)) {
+                throw new DuplicateFieldException("Username already exists!");
+            }
+            if (userRepository.existsByPhoneAndIdNot(userDTO.getPhone(), userID)) {
+                throw new DuplicateFieldException("Phone number already exists!");
+            }
+            if (userRepository.existsByEmailAndIdNot(userDTO.getEmail(), userID)) {
+                throw new DuplicateFieldException("Email already exists!");
+            }
             modelMapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
             modelMapper.map(userDTO, existEntity);
             existEntity.setModifiedDate(new Date());
@@ -96,6 +106,15 @@ public class UserServiceImpl implements UserService {
 
             userEntity = existEntity;
         }else {
+            if (userRepository.existsByUserName(userDTO.getUserName())) {
+                throw new DuplicateFieldException("Username already exists!");
+            }
+            if (userRepository.existsByPhone(userDTO.getPhone())) {
+                throw new DuplicateFieldException("Phone number already exists!");
+            }
+            if (userRepository.existsByEmail(userDTO.getEmail())) {
+                throw new DuplicateFieldException("Email already exists!");
+            }
             userEntity = modelMapper.map(userDTO,UserEntity.class);
             userEntity.setCreatedDate(new Date());
             userEntity.setCreatedBy(SecurityUtils.getPrincipal().getFullName());
